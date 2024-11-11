@@ -10,6 +10,7 @@
 
 ;        DEFINE  spectrum
 ;        DEFINE  easy
+;        DEFINE  mercury
 
         MACRO PADORG addr
           IF $ < addr
@@ -10768,9 +10769,15 @@ twti    ld      b, 4
         bit     5, d
         ld      d, $3c
         jr      nz, twti
+       IFDEF mercury
+        ld      a, %11000001    ; set rom page to 1.  110 rom page, 00001 page 1
+        out     ($e3), a
+        nop
+       ELSE
 again   ld      a, (bc)
         cp      $f3
         jr      nz, again
+       ENDIF
 delay   djnz    delay           ;13*255+8= 3323
         dec     d               ;4
         jr      nz, delay       ;12.  (3323+4+12)*60-5= 200335/3250= 61.64ms

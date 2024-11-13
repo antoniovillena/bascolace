@@ -10770,17 +10770,20 @@ twti    ld      b, 4
         ld      d, $3c
         jr      nz, twti
        IFDEF mercury
-        ld      a, %11000001    ; set rom page to 1.  110 rom page, 00001 page 1
+        ld      a, %11000000    ; read rom page
+        in      a, ($e3)
+        inc     a               ; increase rom page
+        or      %11001000       ; read rom page, disable ace81
         out     ($e3), a
         nop
        ELSE
 again   ld      a, (bc)
         cp      $f3
         jr      nz, again
-       ENDIF
 delay   djnz    delay           ;13*255+8= 3323
         dec     d               ;4
         jr      nz, delay       ;12.  (3323+4+12)*60-5= 200335/3250= 61.64ms
+       ENDIF
         rst     0
       ENDIF
 

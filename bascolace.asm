@@ -10,7 +10,8 @@
 
 ;        DEFINE  spectrum
 ;        DEFINE  easy
-;        DEFINE  mercury
+        DEFINE  mercury
+        DEFINE BORDER_PORT $E7
 
         MACRO PADORG addr
           IF $ < addr
@@ -5603,8 +5604,10 @@ L11C8:  EX      AF,AF'          ; Save the flag to control later branching.
                                 ; and can't be in the range $40 - $7F as 'snow'
                                 ; appears on the screen.
       ELSE
-        LD      I,A             ; Set the I register - this remains constant
-        ld      a,$5b           ; Load the accumulator with last page in firmware.
+	    call STARTAUX
+		nop
+;        LD      I,A             ; Set the I register - this remains constant
+;        ld      a,$5b           ; Load the accumulator with last page in firmware.
       ENDIF
 
 ; -----------------------
@@ -10734,6 +10737,9 @@ L2294:  CALL    L1E94           ; routine FIND-INT1
 
       IFDEF spectrum
         OUT     ($FE),A         ; outputting to port effects an immediate
+                                ; change.
+      ELSE
+      OUT     (BORDER_PORT),A   ; and set it now by writing to a          ; outputting to port effects an immediate
                                 ; change.
       ENDIF
         RLCA                    ; shift the colour to
@@ -19551,7 +19557,16 @@ ULTR8:  IN      F,(C)
         CALL    L5B04           ; salto a Raudo
 ULTR9:  EXX                     ; ya se ha acabado la ultracarga (Raudo)
         JP      ULT10
+        ret
       IFNDEF spectrum
+STARTAUX:
+        LD      I,A             ; Set the I register - this remains constant
+        ld      a,135           ;
+        OUT     ($E3),a         ; out 227,135 BASCOL MODE ENABLE
+        LD      A,$07
+        OUT     (BORDER_PORT),A         ; and set it now by writing to a port.
+        ld      a,$5b           ; Load the accumulator with last page in firmware.
+        ret
         PADORG  $59ce           ; 18 bytes
       ENDIF
 L59CE:  INC     H               ;4
